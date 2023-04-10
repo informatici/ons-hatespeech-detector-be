@@ -1,0 +1,8 @@
+flask
+flask_sqlalchemy
+flask_httpauth
+passlib
+itsdangerous==2.0.1
+gensim
+gunicorn
+python-dotenv

@@ -1,0 +1,6 @@
+# No files starting with dot (eg .env), allow .gitignore
+.*
+!.gitignore
+
+db.sqlite
+__pycache__/
