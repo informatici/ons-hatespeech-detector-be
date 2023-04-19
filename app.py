@@ -36,8 +36,6 @@ dictConfig({
 
 # initialization
 app = Flask(__name__)
-handler = logging.StreamHandler(sys.stdout)
-app.logger.addHandler(handler)
 
 app.config.from_pyfile('settings.py')
 
