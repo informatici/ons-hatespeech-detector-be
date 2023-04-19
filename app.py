@@ -2,6 +2,8 @@
 #!/usr/bin/env python
 #thanks to https://github.com/miguelgrinberg/REST-auth
 import os
+import logging
+import sys
 from flask import Flask, abort, request, jsonify, g, make_response
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import event
@@ -16,6 +18,8 @@ from chatter_models import VeryDummyChatter,DummyChatter,Chatter
 
 # initialization
 app = Flask(__name__)
+handler = logging.StreamHandler(sys.stdout)
+app.logger.addHandler(handler)
 app.config.from_pyfile('settings.py')
 
 # General config
