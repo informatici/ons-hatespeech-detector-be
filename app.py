@@ -4,6 +4,7 @@
 import os
 import logging
 import sys
+
 from flask import Flask, abort, request, jsonify, g, make_response
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import event
@@ -15,11 +16,29 @@ from unsupervised_models import Hurtlext
 from unsupervised_models import HateSpeechDictionary
 from chatter_models import VeryDummyChatter,DummyChatter,Chatter
 
+from logging.config import dictConfig
+
+dictConfig({
+    'version': 1,
+    'formatters': {'default': {
+        'format': '[%(asctime)s] %(levelname)s in %(module)s: %(message)s',
+    }},
+    'handlers': {'wsgi': {
+        'class': 'logging.StreamHandler',
+        'stream': 'ext://sys.stdout',
+        'formatter': 'default'
+    }},
+    'root': {
+        'level': 'INFO',
+        'handlers': ['wsgi']
+    }
+})
 
 # initialization
 app = Flask(__name__)
 handler = logging.StreamHandler(sys.stdout)
 app.logger.addHandler(handler)
+
 app.config.from_pyfile('settings.py')
 
 # General config
