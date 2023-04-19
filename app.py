@@ -2,7 +2,7 @@
 #!/usr/bin/env python
 #thanks to https://github.com/miguelgrinberg/REST-auth
 import os
-from flask import Flask, abort, request, jsonify, g, url_for
+from flask import Flask, abort, request, jsonify, g, make_response
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import event
 from flask_httpauth import HTTPBasicAuth
@@ -106,6 +106,11 @@ def new_user():
     db.session.commit()
     return (jsonify({'username': user.username}), 201)
 
+@app.route('/')
+def liveness_check():
+    response = make_response("<h1>Success</h1>")
+    response.status_code = 200
+    return response
 
 @app.route('/api/token')
 @auth.login_required
