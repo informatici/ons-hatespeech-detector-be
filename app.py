@@ -71,7 +71,7 @@ def create_default_user(*args, **kwargs):
         user.hash_password(app.config['DEFAULT_PASSWORD'])
         db.session.add(user)
         db.session.commit()
-        print("Added default user inferred from environment")
+        print("Added default user \"" + app.config['DEFAULT_USER'] + "\" inferred from environment")
 
 @auth.verify_password
 def verify_password(username_or_token, password):
@@ -86,7 +86,7 @@ def verify_password(username_or_token, password):
     return True
 
 
-@app.route('/signup', methods=['POST'])
+@app.route('/api-hs/signup', methods=['POST'])
 def new_user():
 
     # Check if signup is enabled
@@ -112,20 +112,20 @@ def liveness_check():
     response.status_code = 200
     return response
 
-@app.route('/api/token')
+@app.route('/api-hs/token')
 @auth.login_required
 def get_auth_token():
     token = g.user.generate_auth_token(600)
     return jsonify({'token': token.decode('ascii'), 'duration': 600})
 
 
-@app.route('/signin', methods=['GET'])
+@app.route('/api-hs/signin', methods=['GET'])
 @auth.login_required
 def get_resource():
     return jsonify({'data': 'Hello, %s!' % g.user.username})
 
 
-@app.route('/api/predict/hurtlext', methods=['POST'])
+@app.route('/api-hs/predict/hurtlext', methods=['POST'])
 @auth.login_required
 def post_hurtlext_resource():
     response=[]
@@ -156,7 +156,7 @@ def post_hurtlext_resource():
     return jsonify({'response': response})
 
 
-@app.route('/api/predict/hatespeechdictionary', methods=['POST'])
+@app.route('/api-hs/predict/hatespeechdictionary', methods=['POST'])
 @auth.login_required
 def post_hatespeechdictionary_resource():
     response=[]
@@ -186,7 +186,7 @@ def post_hatespeechdictionary_resource():
     return jsonify({'response': response})
 
 
-@app.route('/api/chatter/verydummychatter', methods=['POST'])
+@app.route('/api-hs/chatter/verydummychatter', methods=['POST'])
 @auth.login_required
 def post_very_dummy_chatter_resource():
 
@@ -203,7 +203,7 @@ def post_very_dummy_chatter_resource():
     return jsonify({'response': answer})
 
 
-@app.route('/api/chatter/dummychatter', methods=['POST'])
+@app.route('/api-hs/chatter/dummychatter', methods=['POST'])
 @auth.login_required
 def post_dummy_chatter_resource():
 
@@ -220,7 +220,7 @@ def post_dummy_chatter_resource():
     return jsonify({'response': answer})
 
 
-@app.route('/api/chatter/mainchatter', methods=['POST'])
+@app.route('/api-hs/chatter/mainchatter', methods=['POST'])
 @auth.login_required
 def post_main_chatter_resource():
 
