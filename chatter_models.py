@@ -1,11 +1,12 @@
 # coding=utf-8
+import csv
 import random
+import re
+
+import numpy
 from gensim.models import Word2Vec
 from scipy.spatial import distance
-import numpy
-import re
-import csv
-import gzip
+
 
 def get_jaccard_sim(str1, str2):
     a = set(str1.split())

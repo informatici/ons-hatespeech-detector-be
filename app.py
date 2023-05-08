@@ -2,24 +2,24 @@
 #!/usr/bin/env python
 #thanks to https://github.com/miguelgrinberg/REST-auth
 import os
-import logging
-import sys
-
-from flask import Flask, abort, request, jsonify, g, make_response
-from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import event
-from flask_httpauth import HTTPBasicAuth
-from passlib.apps import custom_app_context as pwd_context
-from itsdangerous import (TimedJSONWebSignatureSerializer
-                          as Serializer, BadSignature, SignatureExpired)
-from unsupervised_models import Hurtlext
-from unsupervised_models import HateSpeechDictionary
-from chatter_models import VeryDummyChatter,DummyChatter,Chatter
-
 from logging.config import dictConfig
 
+from flask import Flask, abort, request, jsonify, g, make_response
+from flask_httpauth import HTTPBasicAuth
+from flask_sqlalchemy import SQLAlchemy
+from itsdangerous import (TimedJSONWebSignatureSerializer
+                          as Serializer, BadSignature, SignatureExpired)
+from passlib.apps import custom_app_context as pwd_context
+from sqlalchemy import event
+
+from chatter_models import VeryDummyChatter, DummyChatter, Chatter
+from unsupervised_models import HateSpeechDictionary
+from unsupervised_models import Hurtlext
+
+# Log to stdout
 dictConfig({
     'version': 1,
+    'disable_existing_loggers': True,
     'formatters': {'default': {
         'format': '[%(asctime)s] %(levelname)s in %(module)s: %(message)s',
     }},
@@ -37,6 +37,11 @@ dictConfig({
 # initialization
 app = Flask(__name__)
 
+# Remove default handler
+from flask.logging import default_handler
+app.logger.removeHandler(default_handler)
+
+# Load config
 app.config.from_pyfile('settings.py')
 
 # General config
@@ -198,6 +203,7 @@ def post_hatespeechdictionary_resource():
             abort(400) # malformed payload
 
         score, dimensions, tokens = hatespeechdictionary_model.score(item['text'])
+
         if score > 0:
             prediction = 1
         else:
