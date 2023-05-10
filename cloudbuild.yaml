@@ -1,0 +1,29 @@
+steps:
+- name: 'gcr.io/cloud-builders/docker'
+  args:
+    - 'build'
+    - '--tag=gcr.io/ons-hatespeech-detector-2/ons2-be-hs:$TAG_NAME'
+    - '--tag=gcr.io/ons-hatespeech-detector-2/ons2-be-hs:latest'
+    - '.'
+  id: BUILD_BE_HS_IMAGE
+
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['push', 'gcr.io/ons-hatespeech-detector-2/ons2-be-hs:$TAG_NAME']
+  id: PUSH_BE
+
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['push', 'gcr.io/ons-hatespeech-detector-2/ons2-be-hs:latest']
+  id: PUSH_BE_LATEST
+
+################ START DEPLOY ##################
+- name: 'gcr.io/cloud-builders/gke-deploy:stable'
+  args:
+  - run
+  - --filename=k8s/deployment.yaml
+  - --image=gcr.io/ons-hatespeech-detector-2/ons2-be-hs:$TAG_NAME
+  - --location=europe-west1-b
+  - --cluster=ons2-k8s
+  - --project=ons-hatespeech-detector-2
+  id: DEPLOY_BE
+timeout: 900s
+images: ['gcr.io/ons-hatespeech-detector-2/ons2-be-hs']
