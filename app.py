@@ -148,7 +148,7 @@ def get_auth_token():
 @app.route('/api-hs/signin', methods=['GET'])
 @auth.login_required
 def get_resource():
-    return jsonify({'data': 'Hello, %s!' % g.user.username})
+    return jsonify({'data': 'Hello , %s! O/' % g.user.username})
 
 
 @app.route('/api-hs/predict/hurtlext', methods=['POST'])
