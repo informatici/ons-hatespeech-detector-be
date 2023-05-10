@@ -1,0 +1,63 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+ name: ons2-be-hs
+spec:
+ strategy:
+   rollingUpdate:
+     maxSurge: 1
+     maxUnavailable: 0
+   type: RollingUpdate
+ replicas: 1
+ selector:
+   matchLabels:
+     app: ons2-be-hs
+ template:
+   metadata:
+     labels:
+       app: ons2-be-hs
+   spec:
+     containers:
+       - name: ons2-be-hs
+         image: gcr.io/ons-hatespeech-detector-2/ons2-be-hs:latest
+         resources:
+           limits:
+             cpu: 100m
+             memory: 512M
+           requests:
+             cpu: 100m
+             memory: 512M
+         env:
+         - name: SECRET_KEY
+           valueFrom:
+            secretKeyRef:
+              name: ons2-be-hs-secrets
+              key: key
+              optional: false           
+         - name: DEFAULT_USER
+           valueFrom:
+            secretKeyRef:
+              name: ons2-be-hs-secrets
+              key: user
+              optional: false           
+         - name:  DEFAULT_PASSWORD
+           valueFrom:
+            secretKeyRef:
+              name: ons2-be-hs-secrets
+              key: password
+              optional: false           
+         - name: SIGNUP_ENABLED
+           value: "false"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ons2-be-hs
+spec:
+  type: NodePort
+  selector:
+    app: ons2-be-hs
+  ports:
+  - protocol: TCP
+    port: 5000
+    targetPort: 5000
