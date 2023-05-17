@@ -48,7 +48,7 @@ app.config.from_pyfile('settings.py')
 app.config['SQLALCHEMY_DATABASE_URI'] = f"sqlite:///{app.root_path}/db.sqlite"
 app.config['SQLALCHEMY_COMMIT_ON_TEARDOWN'] = True
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-
+token_duration = app.config['TOKEN_EXPIRY']
 
 # extensions
 db = SQLAlchemy(app)
@@ -73,7 +73,7 @@ class User(db.Model):
     def verify_password(self, password):
         return pwd_context.verify(password, self.password_hash)
 
-    def generate_auth_token(self, expiration=600):
+    def generate_auth_token(self, expiration=token_duration):
         s = Serializer(app.config['SECRET_KEY'], expires_in=expiration)
         return s.dumps({'id': self.id})
 
@@ -103,6 +103,7 @@ def create_default_user(*args, **kwargs):
 def verify_password(username_or_token, password):
     # first try to authenticate by token
     user = User.verify_auth_token(username_or_token)
+    # if token verification fails, check user / password pair
     if not user:
         # try to authenticate with username/password
         user = User.query.filter_by(username=username_or_token).first()
@@ -141,8 +142,8 @@ def liveness_check():
 @app.route('/api-hs/token')
 @auth.login_required
 def get_auth_token():
-    token = g.user.generate_auth_token(600)
-    return jsonify({'token': token.decode('ascii'), 'duration': 600})
+    token = g.user.generate_auth_token(token_duration)
+    return jsonify({'token': token.decode('ascii'), 'duration': token_duration})
 
 
 @app.route('/api-hs/signin', methods=['GET'])
