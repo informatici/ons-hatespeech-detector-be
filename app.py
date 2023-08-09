@@ -13,8 +13,9 @@ from passlib.apps import custom_app_context as pwd_context
 from sqlalchemy import event
 
 from chatter_models import VeryDummyChatter, DummyChatter, Chatter
-from unsupervised_models import HateSpeechDictionary
+from unsupervised_models import HateSpeechDictionary, HateSpeechDictionaryV2
 from unsupervised_models import Hurtlext
+import pandas as pd
 
 # Log to stdout
 dictConfig({
@@ -55,6 +56,7 @@ db = SQLAlchemy(app)
 auth = HTTPBasicAuth()
 hurtlextModel = Hurtlext("dataset/")
 hatespeechdictionary_model = HateSpeechDictionary("dataset/")
+hatespeechdictionary_model_v2 = HateSpeechDictionaryV2("dataset/")
 
 very_dummy_chatter = VeryDummyChatter()
 dummy_chatter = DummyChatter()
@@ -182,6 +184,33 @@ def post_hurtlext_resource():
 
     return jsonify({'response': response})
 
+@app.route('/api-hs/predict/v2/hatespeechdictionary', methods=['POST'])
+@auth.login_required
+def post_hatespeechdictionary_resource_v2():
+
+    source = request.json.get('source')
+    items = request.json.get('items')
+    if source is None or items is None:
+        abort(400, description="'source' and 'items' should be provided in payload") # missing arguments
+
+    if not isinstance(items, list):
+        abort(400, description="'items' is not a list") # malformed payload
+
+    # Sanity checks
+    for item in items:
+        if 'id' not in item or 'text' not in item:
+            abort(400, description="Items should have both 'id' and 'text' attributes") # malformed payload
+        if not isinstance(item['text'], str):
+            abort(400, description="'text' attribute is not a string") # malformed payload
+
+    p = pd.DataFrame.from_records(items, columns=['id', 'text'])
+
+    if p.isnull().any().any():
+        abort(400, description="All items should contain both 'id' and 'text' attributes")  # malformed payload
+
+    r = hatespeechdictionary_model_v2.score(p)
+
+    return jsonify({'response': r})
 
 @app.route('/api-hs/predict/hatespeechdictionary', methods=['POST'])
 @auth.login_required

@@ -1,5 +1,6 @@
 # coding=utf-8
 import re
+import pandas as pd
 
 class Hurtlext:
 
@@ -51,6 +52,66 @@ class Hurtlext:
         return score
 
 
+class HateSpeechDictionaryV2:
+
+    def __init__(self, path):
+        d = pd.read_excel(path+"hatespeech_dictionary_glob.xlsx")
+
+        # dplyr::select(-to_drop) %>%
+        # dplyr::select(-animals) %>%
+        # dplyr::select(-aggr_verb_family)
+
+        del d['to_drop']
+        del d['animals']
+        del d['aggr_verb_family']
+
+        # pivot_longer(
+        #    cols = -word, names_to = "group"
+        #  ) %>%
+        #  filter(!is.na(value)) %>%
+        #  dplyr::select(-value) %>%
+
+        d = pd.melt(d, id_vars='word')
+        d = d[~d.value.isnull()]
+        del d['value']
+        d.columns = ['word', 'group']
+        d.sort_values(['group', 'word'], inplace=True)
+
+        mymap = {"aggr_verb": "aggr_verb",
+                 "despise": "aggr_verb",
+                 "discr_pol": "aggr_verb",
+                 "disgust": "aggr_verb",
+                 "discr_abilism": "discr",
+                 "discr_bodyshame": "discr",
+                 "discr_homoph": "discr",
+                 "discr_racism": "discr",
+                 "discr_sexism": "discr",
+                 "incivility_sport": "incivility"}
+
+        d.group = d.group.replace(mymap)
+
+        # One regular expression per dimension
+        self.d = d
+        self.regxs = d.groupby('group')['word'].apply(lambda x : '(\\b|^)(' + '|'.join(x).replace('*', '.*?\\b').replace('_', ' ') + ')(\\b|$)').to_dict()
+
+    def score(self, p):
+
+        dims = self.regxs.keys()
+
+        for k in dims:
+            p[k] = p['text'].str.count(self.regxs[k])
+
+        # dictionary scores
+        p['score'] = p[dims].sum(axis=1)
+        p['prediction'] = (p['score'] > 0).astype(int)
+
+        # dimensions
+        p['dimensions'] = p[dims].to_dict(orient='records')
+        p.drop(dims, axis=1, inplace=True)
+
+        return p.to_dict(orient='records')
+
+
 class HateSpeechDictionary:
 
     def __init__(self, path):
@@ -62,7 +123,6 @@ class HateSpeechDictionary:
             if is_first:
                 is_first=False
                 continue
-            #print(row)
             word,to_drop,vulgar_gen,violence,insult_gen,insult_polit,insult_sport,disgust,hate_feelings,homophobia,ethrel_discr,sexism,bodyshame,disability = row.replace("_"," ").replace("\n","").split(",")
 
             self.word[word]={
@@ -91,21 +151,23 @@ class HateSpeechDictionary:
         text = " "+text+" "
         keys=[]
 
+        # Check if a word exists
         for key, value in self.word.items():
            if re.findall(u" ("+key.replace("*","{1,}[a-zàèéòìù]")+") ",text.lower()):
             go=True
             for k in keys:
-                #print(k,key)
+                # Set false if key already found
                 if k[:-1] == key[:-1]:
                     go=False
             keys.append(key)
             if go:
+                # Add 1 to score, once for key
                 score+=1
+            # Add all dimensions for this word
             for dim, val in value.items():
                 if len(val)>0:
                     dimension.append(dim)
             tokens.append({"word":key,"scores":dimension})
-
 
         return score,set(dimension),tokens
 

@@ -5,4 +5,6 @@ passlib
 itsdangerous==2.0.1
 gensim
 gunicorn
+openpyxl
+pandas
 python-dotenv
