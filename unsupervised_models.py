@@ -1,6 +1,5 @@
 # coding=utf-8
 import re
-import pandas as pd
 
 class Hurtlext:
 
@@ -51,6 +50,15 @@ class Hurtlext:
 
         return score
 
+import pandas as pd
+from langdetect import detect
+from embedding_classifier import EmbeddingClassifier
+
+def detekt(x):
+    try:
+        return detect(x)
+    except:
+        return 'ex'
 
 class HateSpeechDictionaryV2:
 
@@ -60,7 +68,6 @@ class HateSpeechDictionaryV2:
         # dplyr::select(-to_drop) %>%
         # dplyr::select(-animals) %>%
         # dplyr::select(-aggr_verb_family)
-
         del d['to_drop']
         del d['animals']
         del d['aggr_verb_family']
@@ -70,7 +77,6 @@ class HateSpeechDictionaryV2:
         #  ) %>%
         #  filter(!is.na(value)) %>%
         #  dplyr::select(-value) %>%
-
         d = pd.melt(d, id_vars='word')
         d = d[~d.value.isnull()]
         del d['value']
@@ -87,12 +93,15 @@ class HateSpeechDictionaryV2:
                  "discr_racism": "discr",
                  "discr_sexism": "discr",
                  "incivility_sport": "incivility"}
-
         d.group = d.group.replace(mymap)
 
         # One regular expression per dimension
         self.d = d
         self.regxs = d.groupby('group')['word'].apply(lambda x : '(\\b|^)(' + '|'.join(x).replace('*', '.*?\\b').replace('_', ' ') + ')(\\b|$)').to_dict()
+
+        # Laser
+        self.emb = EmbeddingClassifier()
+
 
     def score(self, p):
 
@@ -108,6 +117,12 @@ class HateSpeechDictionaryV2:
         # dimensions
         p['dimensions'] = p[dims].to_dict(orient='records')
         p.drop(dims, axis=1, inplace=True)
+
+        # Language hint
+        p['is_it'] = (p['text'].apply(detekt) == 'it').astype(int)
+
+        # Embeddings classifier
+        p['prediction_nnr'] = self.emb.classify(p['text'].to_list())
 
         return p.to_dict(orient='records')
 
