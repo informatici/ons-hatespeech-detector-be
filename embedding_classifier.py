@@ -50,8 +50,9 @@ def weightmax(mylist):
 class EmbeddingClassifier:
 
     def __init__(self):
-        path = os.path.join(os.path.dirname(laserembeddings.__file__), 'data')
-        download_models(path)
+        # download moved in dockerfile: RUN python3 -m laserembeddings download-models
+        # path = os.path.join(os.path.dirname(laserembeddings.__file__), 'data')
+        # download_models(path)
         self.laser = Laser()
         with open('model/clf.pkl', 'rb') as fin:
             self.clf = pickle.load(fin)

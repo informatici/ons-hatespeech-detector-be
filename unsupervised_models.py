@@ -112,7 +112,7 @@ class HateSpeechDictionaryV2:
 
         # dictionary scores
         p['score'] = p[dims].sum(axis=1)
-        p['prediction'] = (p['score'] > 0).astype(int)
+        p['prediction_dict'] = (p['score'] > 0).astype(int)
 
         # dimensions
         p['dimensions'] = p[dims].to_dict(orient='records')
@@ -123,6 +123,11 @@ class HateSpeechDictionaryV2:
 
         # Embeddings classifier
         p['prediction_nnr'] = self.emb.classify(p['text'].to_list())
+
+        # Final prediction: dictionary or knn (TODO: needs a final logic)
+        p['prediction'] = p['prediction_dict'] | p['prediction_nnr']
+
+        p['version'] = 1
 
         return p.to_dict(orient='records')
 
