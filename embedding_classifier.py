@@ -3,34 +3,8 @@ import os
 import urllib.request
 import numpy as np
 from laserembeddings import Laser
-import pickle
-from sklearn.neighbors import RadiusNeighborsClassifier
-
-
-def download_file(url, dest):
-    skip_download_if_exists = False
-    if os.path.exists(dest) and skip_download_if_exists:
-        print(f'{url} already downloaded')
-    else:
-        print(f'Downloading {url}...')
-        urllib.request.urlretrieve(url, dest)
-
-
-def download_models(path):
-    print(f'Downloading models into {path}')
-
-    if not os.path.exists(path):
-        os.makedirs(path)
-
-    download_file('https://dl.fbaipublicfiles.com/laser/models/93langs.fcodes',
-                  os.path.join(path, '93langs.fcodes'))
-    download_file('https://dl.fbaipublicfiles.com/laser/models/93langs.fvocab',
-                  os.path.join(path, '93langs.fvocab'))
-    download_file(
-        'https://dl.fbaipublicfiles.com/laser/models/bilstm.93langs.2018-12-26.pt',
-        os.path.join(path, 'bilstm.93langs.2018-12-26.pt'))
-
-    print('All set!')
+# import pickle
+# from sklearn.neighbors import RadiusNeighborsClassifier
 
 
 # only nearest within radius counts
@@ -49,17 +23,15 @@ def weightmax(mylist):
 class EmbeddingClassifier:
 
     def __init__(self):
-        # download moved in dockerfile
-        # path = os.path.join(os.path.dirname(laserembeddings.__file__), 'data')
-        # download_models(path)
         self.laser = Laser()
-        with open('model/clf.pkl', 'rb') as fin:
-            self.clf = pickle.load(fin)
-        self.clf.weights = weightmax # piggyback
+        #with open('model/clf.pkl', 'rb') as fin:
+        #    self.clf = pickle.load(fin)
+        #self.clf.weights = weightmax # piggyback
 
     # Expects a list of italian texts
     def embed(self, texts):
         return self.laser.embed_sentences(texts, lang='it')
 
     def classify(self, texts):
-        return self.clf.predict(self.embed(texts))
+        deleteme = self.embed(texts)
+        return True # self.clf.predict(self.embed(texts))
