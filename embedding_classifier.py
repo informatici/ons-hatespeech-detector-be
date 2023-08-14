@@ -9,7 +9,8 @@ from sklearn.neighbors import RadiusNeighborsClassifier
 
 
 def download_file(url, dest):
-    if os.path.exists(dest):
+    skip_download_if_exists = False
+    if os.path.exists(dest) and skip_download_if_exists:
         print(f'{url} already downloaded')
     else:
         print(f'Downloading {url}...')
