@@ -124,7 +124,7 @@ class HateSpeechDictionaryV2:
         deleteme = self.emb.classify(p['text'].to_list())
         # p['prediction_nnr'] = self.emb.classify(p['text'].to_list())
 
-        # Final prediction: dictionary or knn (TODO: needs a final logic)
+        # Final prediction: dictionary or knn
         p['prediction'] = p['prediction_dict'] # | p['prediction_nnr']
 
         p['version'] = 14
