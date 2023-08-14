@@ -52,7 +52,7 @@ class Hurtlext:
 
 import pandas as pd
 from langdetect import detect
-from embedding_classifier import EmbeddingClassifier
+# from embedding_classifier import EmbeddingClassifier
 
 def detekt(x):
     try:
@@ -126,7 +126,7 @@ class HateSpeechDictionaryV2:
         # Final prediction: dictionary or knn (TODO: needs a final logic)
         p['prediction'] = p['prediction_dict'] # | p['prediction_nnr']
 
-        p['version'] = 11
+        p['version'] = 12
 
         return p.to_dict(orient='records')
 

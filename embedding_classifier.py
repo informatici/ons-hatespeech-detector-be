@@ -2,7 +2,6 @@
 import os
 import urllib.request
 import numpy as np
-import laserembeddings
 from laserembeddings import Laser
 import pickle
 from sklearn.neighbors import RadiusNeighborsClassifier
