@@ -6,8 +6,8 @@ itsdangerous==2.0.1
 gensim
 gunicorn
 langdetect
-# laserembeddings
+laserembeddings
 openpyxl
 pandas
 python-dotenv
-# scikit-learn==1.2.2
+scikit-learn
