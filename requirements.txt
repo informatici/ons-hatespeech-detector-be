@@ -10,4 +10,4 @@ laserembeddings
 openpyxl
 pandas
 python-dotenv
-scikit-learn
+scikit-learn==1.2.2
