@@ -100,7 +100,7 @@ class HateSpeechDictionaryV2:
         self.regxs = d.groupby('group')['word'].apply(lambda x : '(\\b|^)(' + '|'.join(x).replace('*', '.*?\\b').replace('_', ' ') + ')(\\b|$)').to_dict()
 
         # Laser
-        self.emb = EmbeddingClassifier()
+        # self.emb = EmbeddingClassifier()
 
 
     def score(self, p):
@@ -125,9 +125,9 @@ class HateSpeechDictionaryV2:
         # p['prediction_nnr'] = self.emb.classify(p['text'].to_list())
 
         # Final prediction: dictionary or knn (TODO: needs a final logic)
-        # p['prediction'] = p['prediction_dict'] | p['prediction_nnr']
+        p['prediction'] = p['prediction_dict'] # | p['prediction_nnr']
 
-        p['version'] = 11
+        p['version'] = 10
 
         return p.to_dict(orient='records')
 
