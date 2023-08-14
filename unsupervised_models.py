@@ -122,13 +122,12 @@ class HateSpeechDictionaryV2:
         p['is_it'] = (p['text'].apply(detekt) == 'it').astype(int)
 
         # Embeddings classifier
-        deleteme = self.emb.classify(p['text'].to_list())
         # p['prediction_nnr'] = self.emb.classify(p['text'].to_list())
 
         # Final prediction: dictionary or knn (TODO: needs a final logic)
         # p['prediction'] = p['prediction_dict'] | p['prediction_nnr']
 
-        p['version'] = 10
+        p['version'] = 11
 
         return p.to_dict(orient='records')
 
