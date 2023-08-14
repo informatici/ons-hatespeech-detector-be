@@ -33,5 +33,4 @@ class EmbeddingClassifier:
         return self.laser.embed_sentences(texts, lang='it')
 
     def classify(self, texts):
-        deleteme = self.embed(texts)
-        return True # self.clf.predict(self.embed(texts))
+        return self.clf.predict(self.embed(texts))
