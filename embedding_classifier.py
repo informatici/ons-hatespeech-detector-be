@@ -50,7 +50,7 @@ def weightmax(mylist):
 class EmbeddingClassifier:
 
     def __init__(self):
-        # download moved in dockerfile: RUN python3 -m laserembeddings download-models
+        # download moved in dockerfile
         # path = os.path.join(os.path.dirname(laserembeddings.__file__), 'data')
         # download_models(path)
         self.laser = Laser()
