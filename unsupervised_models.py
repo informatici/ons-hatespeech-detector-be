@@ -102,6 +102,9 @@ class HateSpeechDictionaryV2:
         # Laser
         # self.emb = EmbeddingClassifier()
 
+        # Delete me
+        from laserembeddings import Laser
+
     def score(self, p):
 
         dims = self.regxs.keys()
@@ -126,7 +129,7 @@ class HateSpeechDictionaryV2:
         # Final prediction: dictionary or knn
         p['prediction'] = p['prediction_dict'] # | p['prediction_nnr']
 
-        p['version'] = 15
+        p['version'] = 16
 
         return p.to_dict(orient='records')
 
