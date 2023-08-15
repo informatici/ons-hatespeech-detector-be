@@ -103,8 +103,8 @@ class HateSpeechDictionaryV2:
         # self.emb = EmbeddingClassifier()
 
         # Delete this whole block, debug only
-        from laserembeddings import Laser
-        mylaser = Laser()
+        # from laserembeddings import Laser
+        # mylaser = Laser() # Does not work when adding instantiation. OOM?
 
     def score(self, p):
 
