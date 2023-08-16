@@ -126,7 +126,7 @@ class HateSpeechDictionaryV2:
         # Final prediction: dictionary or knn
         p['prediction'] = p['prediction_dict'] | p['prediction_nnr']
 
-        p['version'] = 17
+        p['version'] = 18
 
         return p.to_dict(orient='records')
 
