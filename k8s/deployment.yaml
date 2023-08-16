@@ -22,10 +22,10 @@ spec:
          image: gcr.io/ons-hatespeech-detector-2/ons2-be-hs:latest
          resources:
            limits:
-             cpu: 500m
+             cpu: 1000m
              memory: 1536M
            requests:
-             cpu: 500m
+             cpu: 1000m
              memory: 1536M
          env:
          - name: SECRET_KEY
