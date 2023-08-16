@@ -22,7 +22,7 @@ spec:
          image: gcr.io/ons-hatespeech-detector-2/ons2-be-hs:latest
          resources:
            limits:
-             cpu: 250m
+             cpu: 500m
              memory: 1536M
            requests:
              cpu: 500m
