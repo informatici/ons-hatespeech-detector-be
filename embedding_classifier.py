@@ -1,10 +1,8 @@
 # coding=utf-8
-import os
-import urllib.request
 import numpy as np
 from laserembeddings import Laser
-# import pickle
-# from sklearn.neighbors import RadiusNeighborsClassifier
+import pickle
+from sklearn.neighbors import RadiusNeighborsClassifier
 
 
 # only nearest within radius counts
@@ -24,9 +22,9 @@ class EmbeddingClassifier:
 
     def __init__(self):
         self.laser = Laser()
-        #with open('model/clf.pkl', 'rb') as fin:
-        #    self.clf = pickle.load(fin)
-        #self.clf.weights = weightmax # piggyback
+        with open('model/clf.pkl', 'rb') as fin:
+            self.clf = pickle.load(fin)
+        self.clf.weights = weightmax # piggyback
 
     # Expects a list of italian texts
     def embed(self, texts):

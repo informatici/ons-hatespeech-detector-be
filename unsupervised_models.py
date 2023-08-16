@@ -52,7 +52,7 @@ class Hurtlext:
 
 import pandas as pd
 from langdetect import detect
-# from embedding_classifier import EmbeddingClassifier
+from embedding_classifier import EmbeddingClassifier
 
 def detekt(x):
     try:
@@ -100,11 +100,7 @@ class HateSpeechDictionaryV2:
         self.regxs = d.groupby('group')['word'].apply(lambda x : '(\\b|^)(' + '|'.join(x).replace('*', '.*?\\b').replace('_', ' ') + ')(\\b|$)').to_dict()
 
         # Laser
-        # self.emb = EmbeddingClassifier()
-
-        # Delete this whole block, debug only
-        # from laserembeddings import Laser
-        # mylaser = Laser() # Does not work when adding instantiation. OOM?
+        self.emb = EmbeddingClassifier()
 
     def score(self, p):
 
@@ -125,10 +121,10 @@ class HateSpeechDictionaryV2:
         p['is_it'] = (p['text'].apply(detekt) == 'it').astype(int)
 
         # Embeddings classifier
-        # p['prediction_nnr'] = self.emb.classify(p['text'].to_list())
+        p['prediction_nnr'] = self.emb.classify(p['text'].to_list())
 
         # Final prediction: dictionary or knn
-        p['prediction'] = p['prediction_dict'] # | p['prediction_nnr']
+        p['prediction'] = p['prediction_dict'] | p['prediction_nnr']
 
         p['version'] = 17
 

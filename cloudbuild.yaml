@@ -25,5 +25,5 @@ steps:
   - --cluster=ons2-k8s
   - --project=ons-hatespeech-detector-2
   id: DEPLOY_BE
-timeout: 1800s
+timeout: 900s
 images: ['gcr.io/ons-hatespeech-detector-2/ons2-be-hs']
