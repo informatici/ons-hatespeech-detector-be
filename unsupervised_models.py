@@ -1,5 +1,6 @@
 # coding=utf-8
 import re
+import pickle
 
 class Hurtlext:
 
@@ -100,7 +101,7 @@ class HateSpeechDictionaryV2:
         self.regxs = d.groupby('group')['word'].apply(lambda x : '(\\b|^)(' + '|'.join(x).replace('*', '.*?\\b').replace('_', ' ') + ')(\\b|$)').to_dict()
 
         # Laser
-        self.emb = EmbeddingClassifier()
+        self.emb = EmbeddingClassifier('model/clf.pkl')
 
     def score(self, p):
 
@@ -126,7 +127,7 @@ class HateSpeechDictionaryV2:
         # Final prediction: dictionary or knn
         p['prediction'] = p['prediction_dict'] | p['prediction_nnr']
 
-        p['version'] = 19
+        p['version'] = 10
 
         return p.to_dict(orient='records')
 
@@ -189,4 +190,32 @@ class HateSpeechDictionary:
             tokens.append({"word":key,"scores":dimension})
 
         return score,set(dimension),tokens
+
+class AnswerChatterV2:
+
+    def __init__(self):
+        # Laser
+        self.emb = EmbeddingClassifier('model/clf.risposte.pkl')
+        with open('model/mapping.risposte.pkl', 'rb') as f:
+            self.mapping = pickle.load(f)
+
+    def score(self, p):
+
+        # Prediction: dictionary or knn
+        asw = self.emb.classify(p['text'].to_list())
+
+        # Map prediction pattern to extended response
+        mapped = []
+        for y in asw:
+            if y not in self.mapping:
+                res = "miss"
+            else:
+                res = self.mapping[y]
+            mapped.append(res)
+
+        p['answer'] = mapped
+
+        p['version'] = 10
+
+        return p.to_dict(orient='records')
 

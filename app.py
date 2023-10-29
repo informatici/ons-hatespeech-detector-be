@@ -13,7 +13,7 @@ from passlib.apps import custom_app_context as pwd_context
 from sqlalchemy import event
 
 from chatter_models import VeryDummyChatter, DummyChatter, Chatter
-from unsupervised_models import HateSpeechDictionary, HateSpeechDictionaryV2
+from unsupervised_models import HateSpeechDictionary, HateSpeechDictionaryV2, AnswerChatterV2
 from unsupervised_models import Hurtlext
 import pandas as pd
 
@@ -57,6 +57,7 @@ auth = HTTPBasicAuth()
 hurtlextModel = Hurtlext("dataset/")
 hatespeechdictionary_model = HateSpeechDictionary("dataset/")
 hatespeechdictionary_model_v2 = HateSpeechDictionaryV2("dataset/")
+answer_chatter_v2 = AnswerChatterV2()
 
 very_dummy_chatter = VeryDummyChatter()
 dummy_chatter = DummyChatter()
@@ -241,6 +242,34 @@ def post_hatespeechdictionary_resource():
         response.append({'id':item['id'], 'prediction':prediction, 'dimension': " ".join(dimensions), 'tokens': " ".join(sorted(x['word'] for x in tokens)), 'score' : score})
 
     return jsonify({'response': response})
+
+@app.route('/api-hs/chatter/v2/mainchatter', methods=['POST'])
+@auth.login_required
+def post_main_chatter_resource_v2():
+
+    source = request.json.get('source')
+    items = request.json.get('items')
+    if source is None or items is None:
+        abort(400, description="'source' and 'items' should be provided in payload") # missing arguments
+
+    if not isinstance(items, list):
+        abort(400, description="'items' is not a list") # malformed payload
+
+    # Sanity checks
+    for item in items:
+        if 'id' not in item or 'text' not in item:
+            abort(400, description="Items should have both 'id' and 'text' attributes") # malformed payload
+        if not isinstance(item['text'], str):
+            abort(400, description="'text' attribute is not a string") # malformed payload
+
+    p = pd.DataFrame.from_records(items, columns=['id', 'text'])
+
+    if p.isnull().any().any():
+        abort(400, description="All items should contain both 'id' and 'text' attributes")  # malformed payload
+
+    r = answer_chatter_v2.score(p)
+
+    return jsonify({'response': r})
 
 
 @app.route('/api-hs/chatter/verydummychatter', methods=['POST'])

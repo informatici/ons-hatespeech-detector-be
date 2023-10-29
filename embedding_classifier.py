@@ -20,9 +20,9 @@ def weightmax(mylist):
 
 class EmbeddingClassifier:
 
-    def __init__(self):
+    def __init__(self, path):
         self.laser = Laser()
-        with open('model/clf.pkl', 'rb') as fin:
+        with open(path, 'rb') as fin:
             self.clf = pickle.load(fin)
         self.clf.weights = weightmax # piggyback
 
