@@ -110,6 +110,8 @@ class HateSpeechDictionaryV2:
         for k in dims:
             p[k] = p['text'].str.count(self.regxs[k])
 
+        print(self.regxs)
+
         # dictionary scores
         p['score'] = p[dims].sum(axis=1)
         p['prediction_dict'] = (p['score'] > 0).astype(int)
