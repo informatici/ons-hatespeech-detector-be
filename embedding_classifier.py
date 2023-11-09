@@ -10,12 +10,12 @@ def weightmax(mylist):
     myweights = []
     for d in mylist:
         if len(d) < 1:
-            myweights.append(np.array([]))
+            myweights.append(np.array([], dtype=np.float64))
         else:
-            w = np.zeros(d.shape)
+            w = np.zeros(d.shape, dtype=np.float64)
             w[np.argmin(d)] = 1.
             myweights.append(w)
-    return np.array(myweights, dtype=object)
+    return np.array(myweights, dtype=np.float64)
 
 
 class EmbeddingClassifier:
