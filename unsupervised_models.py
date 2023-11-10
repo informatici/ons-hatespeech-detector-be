@@ -106,15 +106,27 @@ class HateSpeechDictionaryV2:
     def score(self, p):
 
         dims = self.regxs.keys()
+        dims_tokens = [d + '_tokens' for d in dims]
 
-        for k in dims:
+        for k, t in zip(dims, dims_tokens):
             p[k] = p['text'].str.count(self.regxs[k])
 
-        print(self.regxs)
+            matches = p['text'].str.extractall(self.regxs[k]).reset_index().groupby('level_0', as_index = False)[1].agg({t: ' '.join})
+            matches.set_index('level_0', drop=True, inplace=True)
+            matches.index.name = None
+
+            p = p.merge(matches, how="left", left_index=True, right_index=True)
+            p[t].fillna('', inplace=True)
 
         # dictionary scores
         p['score'] = p[dims].sum(axis=1)
         p['prediction_dict'] = (p['score'] > 0).astype(int)
+
+        # tokens
+        p['tokens_dimensions'] = p[dims_tokens].to_dict(orient='records')
+
+        p['tokens'] = p[dims_tokens].stack().groupby(level=0).agg(" ".join).str.split().apply(set).str.join(' ')
+        for d in dims_tokens: del p[d]
 
         # dimensions
         p['dimensions'] = p[dims].to_dict(orient='records')
@@ -124,7 +136,9 @@ class HateSpeechDictionaryV2:
         p['is_it'] = (p['text'].apply(detekt) == 'it').astype(int)
 
         # Embeddings classifier
-        p['prediction_nnr'] = self.emb.classify(p['text'].to_list())
+        predictions, radiuses = self.emb.classify(p['text'].to_list())
+        p['prediction_nnr'] = predictions
+        p['radiuses_nnr'] = radiuses
 
         # Final prediction: dictionary or knn
         p['prediction'] = p['prediction_dict'] | p['prediction_nnr']
@@ -204,7 +218,8 @@ class AnswerChatterV2:
     def score(self, p):
 
         # Prediction: dictionary or knn
-        asw = self.emb.classify(p['text'].to_list())
+        predictions, _ = self.emb.classify(p['text'].to_list())
+        asw = predictions
 
         # Map prediction pattern to extended response
         mapped = []

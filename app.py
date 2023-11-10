@@ -243,6 +243,15 @@ def post_hatespeechdictionary_resource():
 
     return jsonify({'response': response})
 
+
+excel_meta = pd.read_excel("dataset/db_albero_ONES2_210823rc.xlsx", sheet_name=1)
+meta = excel_meta[['combinazioni', 'RISPOSTA']].rename(columns={'combinazioni': 'pattern', 'RISPOSTA': 'risposta'}).to_dict(orient='records')
+
+@app.route('/api-hs/predict/v2/answers', methods=['GET'])
+@auth.login_required
+def get_answers():
+    return jsonify({'response': meta})
+
 @app.route('/api-hs/chatter/v2/mainchatter', methods=['POST'])
 @auth.login_required
 def post_main_chatter_resource_v2():
