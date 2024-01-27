@@ -20,15 +20,36 @@ def weightmax(mylist):
 
     return m
 
+# A classic KNN classifier
+class EmbeddingClassifierKNN:
 
-class EmbeddingClassifier:
+    def __init__(self, path):
+        self.laser = Laser()
+        with open(path, 'rb') as fin:
+            self.clf = pickle.load(fin)
+
+    # Expects a list of italian texts
+    def embed(self, texts):
+        return self.laser.embed_sentences(texts, lang='it')
+
+    def classify(self, texts):
+
+        confidences = self.clf.predict_proba(self.embed(texts))
+
+        predictions = [self.clf.classes_[i] for i in confidences.argmax(axis=1)]
+        confidences = [np.round(c, 2) for c in list(confidences.max(axis=1) / 1)]
+
+        return predictions, confidences
+
+# A KNN with radius threshold classifier
+class EmbeddingClassifierRKNN:
 
     def __init__(self, path):
         self.laser = Laser()
         with open(path, 'rb') as fin:
             self.clf = pickle.load(fin)
         # self.clf.weights = weightmax # piggyback
-        self.clf.weights = "distance"
+        # self.clf.weights = "distance"
 
     # Expects a list of italian texts
     def embed(self, texts):

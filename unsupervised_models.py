@@ -2,6 +2,8 @@
 import re
 import pickle
 
+VERSION = 11
+
 class Hurtlext:
 
     def __init__(self, path):
@@ -53,7 +55,7 @@ class Hurtlext:
 
 import pandas as pd
 from langdetect import detect
-from embedding_classifier import EmbeddingClassifier
+from embedding_classifier import EmbeddingClassifierRKNN
 
 def detekt(x):
     try:
@@ -101,7 +103,7 @@ class HateSpeechDictionaryV2:
         self.regxs = d.groupby('group')['word'].apply(lambda x : '(\\b|^)(' + '|'.join(x).replace('*', '.*?\\b').replace('_', ' ') + ')(\\b|$)').to_dict()
 
         # Laser
-        self.emb = EmbeddingClassifier('model/clf.pkl')
+        self.emb = EmbeddingClassifierRKNN('model/clf.20012024.binary.pkl')
 
     def score(self, p):
 
@@ -138,12 +140,12 @@ class HateSpeechDictionaryV2:
         # Embeddings classifier
         predictions, radiuses = self.emb.classify(p['text'].to_list())
         p['prediction_nnr'] = predictions
-        p['radiuses_nnr'] = radiuses
+        # p['radiuses_nnr_bin'] = radiuses
 
         # Final prediction: dictionary or knn
         p['prediction'] = p['prediction_dict'] | p['prediction_nnr']
 
-        p['version'] = 10
+        p['version'] = VERSION
 
         return p.to_dict(orient='records')
 
@@ -207,32 +209,37 @@ class HateSpeechDictionary:
 
         return score,set(dimension),tokens
 
+from embedding_classifier import EmbeddingClassifierKNN
+
 class AnswerChatterV2:
 
     def __init__(self):
         # Laser
-        self.emb = EmbeddingClassifier('model/clf.risposte.pkl')
+        self.emb = EmbeddingClassifierKNN('model/clf.20012024.multipass.pickle')
         with open('model/mapping.risposte.pkl', 'rb') as f:
             self.mapping = pickle.load(f)
 
     def score(self, p):
 
         # Prediction: dictionary or knn
-        predictions, _ = self.emb.classify(p['text'].to_list())
-        asw = predictions
+        predictions, confidences = self.emb.classify(p['text'].to_list())
+
+        p['pattern'] = predictions
+        p['confidences_nnr_multi'] = confidences
+        p['confidences_nnr_multi_threshold'] = 0.15
 
         # Map prediction pattern to extended response
         mapped = []
-        for y in asw:
+        for y in predictions:
             if y not in self.mapping:
-                res = "miss"
+                res = "Error in mapping pattern -> answer: this should never happen!"
             else:
                 res = self.mapping[y]
-            mapped.append(res)
+            mapped.append(res.strip())
 
         p['answer'] = mapped
 
-        p['version'] = 10
+        p['version'] = VERSION
 
         return p.to_dict(orient='records')
 
