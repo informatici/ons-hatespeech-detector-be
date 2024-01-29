@@ -231,6 +231,7 @@ class AnswerChatterV2:
         # Map prediction pattern to extended response
         mapped = []
         for y in predictions:
+            y = y.strip()
             if y not in self.mapping:
                 res = "Error in mapping pattern -> answer: this should never happen!"
             else:
