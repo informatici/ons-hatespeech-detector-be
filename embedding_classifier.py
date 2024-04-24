@@ -39,6 +39,11 @@ class EmbeddingClassifierKNN:
         predictions = [self.clf.classes_[i] for i in confidences.argmax(axis=1)]
         confidences = [np.round(c, 2) for c in list(confidences.max(axis=1) / 1)]
 
+        # Zero-out for short texts (LASER has been trained with >=5 words)
+        ntokens = [len(t.split()) for t in texts]
+        confidences = [c if n > 4 else 0.0 for c, n in zip(confidences, ntokens)]
+
+
         return predictions, confidences
 
 # A KNN with radius threshold classifier

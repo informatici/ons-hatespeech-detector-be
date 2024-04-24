@@ -2,7 +2,7 @@
 import re
 import pickle
 
-VERSION = 11
+VERSION = 12
 
 class Hurtlext:
 
@@ -109,6 +109,7 @@ class HateSpeechDictionaryV2:
 
         dims = self.regxs.keys()
         dims_tokens = [d + '_tokens' for d in dims]
+        p['text'] = p['text'].str.lower()
 
         for k, t in zip(dims, dims_tokens):
             p[k] = p['text'].str.count(self.regxs[k])
