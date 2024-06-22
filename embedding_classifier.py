@@ -40,7 +40,15 @@ class EmbeddingClassifierKNN:
         confidences = [np.round(c, 2) for c in list(confidences.max(axis=1) / 1)]
 
         # Zero-out for short texts (LASER has been trained with >=5 words)
-        ntokens = [len(t.split()) for t in texts]
+        # ntokens_ = [len(t.split()) for t in texts]
+        import re
+        import demoji
+        text_clean = [re.sub(r"(?:\@|https?\://)\S+", '', x, flags=re.MULTILINE) for x in texts]
+        text_clean = [' '.join(x.split()).strip() for x in text_clean]
+        text_clean = [demoji.replace(x, '') for x in text_clean]
+        ntokens = [len(t.split()) for t in text_clean]
+
+
         confidences = [c if n > 4 else 0.0 for c, n in zip(confidences, ntokens)]
 
 
