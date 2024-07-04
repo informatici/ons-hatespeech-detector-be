@@ -2,7 +2,7 @@
 import re
 import pickle
 
-VERSION = 12
+VERSION = 13
 
 class Hurtlext:
 
