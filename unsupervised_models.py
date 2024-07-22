@@ -2,7 +2,7 @@
 import re
 import pickle
 
-VERSION = 12
+VERSION = 13
 
 class Hurtlext:
 
@@ -103,8 +103,8 @@ class HateSpeechDictionaryV2:
         self.regxs = d.groupby('group')['word'].apply(lambda x : '(\\b|^)(' + '|'.join(x).replace('*', '.*?\\b').replace('_', ' ') + ')(\\b|$)').to_dict()
 
         # Laser
-        # self.emb = EmbeddingClassifierRKNN('model/clf.22062024.binary.pickle')
-        self.emb = EmbeddingClassifierRKNN('model/clf.20012024.binary.pkl')
+        # self.emb = EmbeddingClassifierRKNN('model/clf.20012024.binary.pkl') # V12
+        self.emb = EmbeddingClassifierRKNN('model/clf.22062024.binary.pickle')
 
     def score(self, p):
 
@@ -217,8 +217,8 @@ class AnswerChatterV2:
 
     def __init__(self):
         # Laser
-        # self.emb = EmbeddingClassifierKNN('model/clf.22062024.multipass.pickle')
-        self.emb = EmbeddingClassifierKNN('model/clf.20012024.multipass.pickle')
+        # self.emb = EmbeddingClassifierKNN('model/clf.20012024.multipass.pickle') # V12
+        self.emb = EmbeddingClassifierKNN('model/clf.22062024.multipass.pickle')
         with open('model/mapping.risposte.pkl', 'rb') as f:
             self.mapping = pickle.load(f)
 
